@@ -75,24 +75,31 @@ git push origin main
 
 ### 3. 手動部署（選擇性）
 
-```sh
 yarn add -D gh-pages
+
+```sh
+# 安裝 gh-pages
+pnpm add -D gh-pages
 ```
 
 `package.json` scripts 加入：
 
 ```jsonc
-"predeploy": "yarn build",
+"predeploy": "pnpm build",
 "deploy": "gh-pages -d dist"
 ```
 
 執行：
 
 ```sh
-yarn deploy
+pnpm deploy
 ```
 
 ### 4. 常見問題
+
+```sh
+pnpm deploy
+```
 
 - 404：`base` 未設或與倉庫名稱不同
 - 靜態資源載入錯：使用相對路徑或 `import`，避免硬編碼根 `/`
