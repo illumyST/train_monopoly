@@ -84,7 +84,7 @@ export const StationSelector: React.FC<StationSelectorProps> = ({
             <div className="grid grid-cols-2 gap-3">
                 <button
                     onClick={() => onPreferenceChange('MOUNTAIN')}
-                    className={`flex items-center justify-center gap-2 py-5 rounded-xl border transition-all ${
+                    className={`flex items-center justify-center gap-2 py-3 px-2 rounded-xl border transition-all ${
                         linePreference === 'MOUNTAIN' 
                         ? 'bg-green-50 border-green-500 text-green-700 font-bold' 
                         : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'
@@ -95,7 +95,7 @@ export const StationSelector: React.FC<StationSelectorProps> = ({
                 </button>
                 <button
                     onClick={() => onPreferenceChange('SEA')}
-                    className={`flex items-center justify-center gap-2 py-5 rounded-xl border transition-all ${
+                    className={`flex items-center justify-center gap-2 py-3 px-2 rounded-xl border transition-all ${
                         linePreference === 'SEA' 
                         ? 'bg-blue-50 border-blue-500 text-blue-700 font-bold' 
                         : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'
