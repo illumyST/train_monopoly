@@ -160,12 +160,17 @@ const App: React.FC = () => {
       {/* Header */}
       <header className="bg-white border-b border-slate-200 px-4 py-3 sticky top-0 z-30 shadow-sm">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="bg-blue-600 text-white p-1.5 rounded-lg">
-                <TrainFront className="w-6 h-6" />
-            </div>
-            <h1 className="text-xl font-bold text-slate-800 tracking-tight">火車大富翁</h1>
-          </div>
+          <button
+            className="flex items-center gap-2"
+            onClick={resetGame}
+            aria-label="回首頁"
+            type="button"
+          >
+              <div className="bg-blue-600 p-1.5 text-white rounded-lg hover:bg-blue-700 transition-colors focus:outline-none">
+              <TrainFront className="w-6 h-6" />
+              </div>
+              <h1 className="text-xl font-bold text-slate-800 tracking-tight">火車大富翁</h1>
+          </button>
           
           {gameStatus !== GameStatus.SETUP && (
             <button 

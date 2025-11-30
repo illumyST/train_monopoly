@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Station, LinePreference } from '../types';
 import { MapPin, Navigation, Mountain, Waves } from 'lucide-react';
 
@@ -11,6 +11,7 @@ interface StationSelectorProps {
   onEndChange: (code: string) => void;
   onPreferenceChange: (pref: LinePreference) => void;
   onConfirm: () => void;
+  // 可擴充: onSwap?: () => void;
 }
 
 export const StationSelector: React.FC<StationSelectorProps> = ({
@@ -23,6 +24,33 @@ export const StationSelector: React.FC<StationSelectorProps> = ({
   onPreferenceChange,
   onConfirm
 }) => {
+  // 判斷是否顯示路線偏好
+  const showLinePreference = useMemo(() => {
+    if (!startCode || !endCode || startCode === endCode) return false;
+    // 取得起訖站之間的所有車站
+    const startIdx = stations.findIndex(s => s.stationCode === startCode);
+    const endIdx = stations.findIndex(s => s.stationCode === endCode);
+    if (startIdx === -1 || endIdx === -1) return false;
+    const [from, to] = startIdx <= endIdx ? [startIdx, endIdx] : [endIdx, startIdx];
+    const routeStations = stations.slice(from, to + 1);
+    // 山線與海線車站代碼
+    const SEA_LINE_CODES = new Set([
+      '2110', '2120', '2130', '2140', '2150', '2160', '2170', '2180', 
+      '2190', '2200', '2210', '2220', '2230', '2240', '2250', '2260'
+    ]);
+    const MOUNTAIN_LINE_CODES = new Set([
+      '3140', '3150', '3160', '3170', '3180', '3190', '3210', '3220', 
+      '3230', '3240', '3250', '3260', '3270', '3280', '3290', '3300', 
+      '3310', '3320', '3330', '3340', '3350'
+    ]);
+    let hasSea = false, hasMountain = false;
+    for (const s of routeStations) {
+      if (SEA_LINE_CODES.has(s.stationCode)) hasSea = true;
+      if (MOUNTAIN_LINE_CODES.has(s.stationCode)) hasMountain = true;
+    }
+    return hasSea && hasMountain;
+  }, [startCode, endCode, stations]);
+
   return (
     <div className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 max-w-md w-full mx-auto">
       <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
@@ -53,9 +81,7 @@ export const StationSelector: React.FC<StationSelectorProps> = ({
           </div>
         </div>
 
-        <div className="flex justify-center -my-2 z-10 relative">
-          <div className="h-8 w-0.5 bg-slate-200"></div>
-        </div>
+        {/* 起訖站互換按鈕區塊將於下一步插入 */}
 
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-500 flex items-center gap-2">
@@ -79,33 +105,35 @@ export const StationSelector: React.FC<StationSelectorProps> = ({
           </div>
         </div>
 
-        <div className="pt-4">
+        {showLinePreference && (
+          <div className="pt-4">
             <label className="text-sm font-medium text-slate-500 mb-2 block">路線偏好 (經過苗栗/台中路段)</label>
             <div className="grid grid-cols-2 gap-3">
-                <button
-                    onClick={() => onPreferenceChange('MOUNTAIN')}
-                    className={`flex items-center justify-center gap-2 py-3 px-2 rounded-xl border transition-all ${
-                        linePreference === 'MOUNTAIN' 
-                        ? 'bg-green-50 border-green-500 text-green-700 font-bold' 
-                        : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'
-                    }`}
-                >
-                    <Mountain className="w-4 h-4" />
-                    山線 (Mountain)
-                </button>
-                <button
-                    onClick={() => onPreferenceChange('SEA')}
-                    className={`flex items-center justify-center gap-2 py-3 px-2 rounded-xl border transition-all ${
-                        linePreference === 'SEA' 
-                        ? 'bg-blue-50 border-blue-500 text-blue-700 font-bold' 
-                        : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'
-                    }`}
-                >
-                    <Waves className="w-4 h-4" />
-                    海線 (Sea)
-                </button>
+              <button
+                onClick={() => onPreferenceChange('MOUNTAIN')}
+                className={`flex items-center justify-center gap-2 py-3 px-2 rounded-xl border transition-all ${
+                  linePreference === 'MOUNTAIN' 
+                  ? 'bg-green-50 border-green-500 text-green-700 font-bold' 
+                  : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'
+                }`}
+              >
+                <Mountain className="w-4 h-4" />
+                山線 (Mountain)
+              </button>
+              <button
+                onClick={() => onPreferenceChange('SEA')}
+                className={`flex items-center justify-center gap-2 py-3 px-2 rounded-xl border transition-all ${
+                  linePreference === 'SEA' 
+                  ? 'bg-blue-50 border-blue-500 text-blue-700 font-bold' 
+                  : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'
+                }`}
+              >
+                <Waves className="w-4 h-4" />
+                海線 (Sea)
+              </button>
             </div>
-        </div>
+          </div>
+        )}
       </div>
 
       <button
