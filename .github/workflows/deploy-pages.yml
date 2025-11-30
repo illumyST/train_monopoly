@@ -19,13 +19,18 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'yarn'
+          cache: 'pnpm'
+
+      - name: Enable Corepack & PNPM
+        run: |
+          corepack enable
+          pnpm --version
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Build (vite)
-        run: yarn build
+        run: pnpm build
 
       - name: Configure git user
         run: |
@@ -35,6 +40,6 @@ jobs:
       - name: Deploy to gh-pages branch
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: yarn deploy
+        run: pnpm deploy
 
     # 成功後可在倉庫設定中選擇 gh-pages branch 作為 Pages 來源
