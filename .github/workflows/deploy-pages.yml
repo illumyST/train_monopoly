@@ -20,15 +20,13 @@ jobs:
         with:
           node-version: '20'
           cache: 'pnpm'
-
-      - name: Install PNPM
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9.12.0
-          run_install: false
-
-      - name: Show PNPM version
-        run: pnpm --version
+      - name: Ensure pnpm installed
+        run: |
+          if ! command -v pnpm >/dev/null 2>&1; then
+            echo "pnpm not found - installing globally";
+            npm i -g pnpm@9.12.0;
+          fi
+          pnpm --version
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
