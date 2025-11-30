@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { Station } from '../types';
 import { MapPin } from 'lucide-react';
 
@@ -8,9 +8,9 @@ interface CurrentStationProps {
   isEnd: boolean;
 }
 
-export const CurrentStation: React.FC<CurrentStationProps> = ({ station, isStart, isEnd }) => {
+export const CurrentStation = forwardRef<HTMLDivElement, CurrentStationProps>(({ station, isStart, isEnd }, ref) => {
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col items-center text-center relative overflow-hidden">
+    <div ref={ref} className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col items-center text-center relative overflow-hidden scroll-mt-20">
       {/* Decorative background elements */}
       <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-400 to-indigo-500"></div>
       
@@ -28,10 +28,8 @@ export const CurrentStation: React.FC<CurrentStationProps> = ({ station, isStart
       <p className="text-lg text-slate-400 font-medium">
         {station.stationEName}
       </p>
-      
-      <div className="mt-4 px-3 py-1 bg-slate-100 rounded text-xs text-slate-500 font-mono">
-        Code: {station.stationCode}
-      </div>
     </div>
   );
-};
+});
+
+CurrentStation.displayName = 'CurrentStation';

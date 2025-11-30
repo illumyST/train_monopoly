@@ -1,13 +1,15 @@
 import React from 'react';
-import { Station } from '../types';
-import { MapPin, Navigation } from 'lucide-react';
+import { Station, LinePreference } from '../types';
+import { MapPin, Navigation, Mountain, Waves } from 'lucide-react';
 
 interface StationSelectorProps {
   stations: Station[];
   startCode: string;
   endCode: string;
+  linePreference: LinePreference;
   onStartChange: (code: string) => void;
   onEndChange: (code: string) => void;
+  onPreferenceChange: (pref: LinePreference) => void;
   onConfirm: () => void;
 }
 
@@ -15,8 +17,10 @@ export const StationSelector: React.FC<StationSelectorProps> = ({
   stations,
   startCode,
   endCode,
+  linePreference,
   onStartChange,
   onEndChange,
+  onPreferenceChange,
   onConfirm
 }) => {
   return (
@@ -73,6 +77,34 @@ export const StationSelector: React.FC<StationSelectorProps> = ({
             </select>
             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
           </div>
+        </div>
+
+        <div className="pt-4">
+            <label className="text-sm font-medium text-slate-500 mb-2 block">路線偏好 (經過苗栗/台中路段)</label>
+            <div className="grid grid-cols-2 gap-3">
+                <button
+                    onClick={() => onPreferenceChange('MOUNTAIN')}
+                    className={`flex items-center justify-center gap-2 py-5 rounded-xl border transition-all ${
+                        linePreference === 'MOUNTAIN' 
+                        ? 'bg-green-50 border-green-500 text-green-700 font-bold' 
+                        : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'
+                    }`}
+                >
+                    <Mountain className="w-4 h-4" />
+                    山線 (Mountain)
+                </button>
+                <button
+                    onClick={() => onPreferenceChange('SEA')}
+                    className={`flex items-center justify-center gap-2 py-5 rounded-xl border transition-all ${
+                        linePreference === 'SEA' 
+                        ? 'bg-blue-50 border-blue-500 text-blue-700 font-bold' 
+                        : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'
+                    }`}
+                >
+                    <Waves className="w-4 h-4" />
+                    海線 (Sea)
+                </button>
+            </div>
         </div>
       </div>
 

@@ -13,7 +13,6 @@ export const TRA_STATIONS: Station[] = [
   {"stationCode":"0980","stationName":"南港","stationEName":"Nangang"},
   {"stationCode":"0990","stationName":"松山","stationEName":"Songshan"},
   {"stationCode":"1000","stationName":"臺北","stationEName":"Taipei"},
-  {"stationCode":"1001","stationName":"臺北-環島","stationEName":"Taipei Surround Island"},
   {"stationCode":"1010","stationName":"萬華","stationEName":"Wanhua"},
   {"stationCode":"1020","stationName":"板橋","stationEName":"Banqiao"},
   {"stationCode":"1030","stationName":"浮洲","stationEName":"Fuzhou"},

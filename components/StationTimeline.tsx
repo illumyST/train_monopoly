@@ -53,17 +53,17 @@ export const StationTimeline: React.FC<StationTimelineProps> = ({ route, current
 
               {/* Badges */}
               {isStart && (
-                <div className="absolute -top-2 left-1/2 -translate-x-1/2 bg-green-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm flex items-center gap-1">
+                <div className="absolute -top-2 left-1/2 -translate-x-1/2 bg-green-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm flex items-center gap-1 whitespace-nowrap">
                    <Flag className="w-3 h-3" /> 起點
                 </div>
               )}
               {isEnd && (
-                <div className="absolute -top-2 left-1/2 -translate-x-1/2 bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm flex items-center gap-1">
+                <div className="absolute -top-2 left-1/2 -translate-x-1/2 bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm flex items-center gap-1 whitespace-nowrap">
                    <Target className="w-3 h-3" /> 終點
                 </div>
               )}
               {isActive && !isStart && !isEnd && (
-                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm">
+                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm whitespace-nowrap">
                     YOU
                  </div>
               )}

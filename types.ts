@@ -21,6 +21,8 @@ export interface HistoryEntry {
   turn: number;
 }
 
+export type LinePreference = 'MOUNTAIN' | 'SEA';
+
 export interface GameState {
   status: GameStatus;
   currentStationIndex: number; // Index relative to the generated route

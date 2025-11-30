@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { StationSelector } from './components/StationSelector';
 import { DiceButton } from './components/DiceButton';
 import { CurrentStation } from './components/CurrentStation';
@@ -7,18 +7,20 @@ import { StationTimeline } from './components/StationTimeline';
 import { GameSettings } from './components/GameSettings';
 import { HistoryList } from './components/HistoryList';
 import { useStationData } from './hooks/useStationData';
-import { GameStatus, Station, DiceConfig, HistoryEntry } from './types';
-import { RotateCcw, TrainFront } from 'lucide-react';
+import { GameStatus, Station, DiceConfig, HistoryEntry, LinePreference } from './types';
+import { RotateCcw, TrainFront, ChevronDown, ChevronUp } from 'lucide-react';
 
 const STORAGE_KEY = 'train-monopoly-save-v2';
 
 const App: React.FC = () => {
   const { allStations, getRoute } = useStationData();
+  const currentStationRef = useRef<HTMLDivElement>(null);
 
   // Settings State
-  const [startCode, setStartCode] = useState<string>('4080'); // Default Chiayi (New Code)
+  const [startCode, setStartCode] = useState<string>('4080'); // Default Chiayi
   const [endCode, setEndCode] = useState<string>('1000');   // Default Taipei
   const [diceConfig, setDiceConfig] = useState<DiceConfig>({ min: 1, max: 6 });
+  const [linePreference, setLinePreference] = useState<LinePreference>('MOUNTAIN');
 
   // Game State
   const [gameStatus, setGameStatus] = useState<GameStatus>(GameStatus.SETUP);
@@ -29,6 +31,7 @@ const App: React.FC = () => {
   const [showNextBanner, setShowNextBanner] = useState<boolean>(false);
   const [nextStationPreview, setNextStationPreview] = useState<Station | null>(null);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [isControlsExpanded, setIsControlsExpanded] = useState<boolean>(true);
 
   // Load from LocalStorage on mount
   useEffect(() => {
@@ -39,10 +42,12 @@ const App: React.FC = () => {
         if (parsed.startCode) setStartCode(parsed.startCode);
         if (parsed.endCode) setEndCode(parsed.endCode);
         if (parsed.diceConfig) setDiceConfig(parsed.diceConfig);
+        if (parsed.linePreference) setLinePreference(parsed.linePreference);
         if (parsed.gameStatus) setGameStatus(parsed.gameStatus);
         if (parsed.route) setRoute(parsed.route);
         if (parsed.currentIndex !== undefined) setCurrentIndex(parsed.currentIndex);
         if (parsed.history) setHistory(parsed.history);
+        if (parsed.isControlsExpanded !== undefined) setIsControlsExpanded(parsed.isControlsExpanded);
       } catch (e) {
         console.error("Failed to load save", e);
       }
@@ -55,16 +60,18 @@ const App: React.FC = () => {
       startCode,
       endCode,
       diceConfig,
+      linePreference,
       gameStatus,
       route,
       currentIndex,
-      history
+      history,
+      isControlsExpanded
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
-  }, [startCode, endCode, diceConfig, gameStatus, route, currentIndex, history]);
+  }, [startCode, endCode, diceConfig, linePreference, gameStatus, route, currentIndex, history, isControlsExpanded]);
 
   const startGame = () => {
-    const calculatedRoute = getRoute(startCode, endCode);
+    const calculatedRoute = getRoute(startCode, endCode, linePreference);
     setRoute(calculatedRoute);
     setCurrentIndex(0);
     setDiceValue(null);
@@ -73,14 +80,11 @@ const App: React.FC = () => {
   };
 
   const resetGame = () => {
-    // Reset game state to Setup
     setGameStatus(GameStatus.SETUP);
     setRoute([]);
     setCurrentIndex(0);
     setDiceValue(null);
     setHistory([]);
-    // Note: We don't need to manually removeItem here because the useEffect 
-    // will immediately overwrite it with the new 'SETUP' state, which is what we want.
   };
 
   const handleRollDice = () => {
@@ -118,7 +122,8 @@ const App: React.FC = () => {
     setNextStationPreview(targetStation);
     setShowNextBanner(true);
 
-    // Delay moving to simulate travel
+    // Scroll to Current Station logic
+    // We do this after the banner closes (or during, but user needs to see where they are going)
     setTimeout(() => {
         setShowNextBanner(false);
         setCurrentIndex(nextIndex);
@@ -133,9 +138,16 @@ const App: React.FC = () => {
             }
         ]);
 
+        // Auto collapse controls
+        setIsControlsExpanded(false);
+
+        // Scroll "Current Station" into view
+        if (currentStationRef.current) {
+          currentStationRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
         if (nextIndex === route.length - 1) {
             // Reached destination
-            // Could add a victory modal here
         }
     }, 2000);
   };
@@ -144,7 +156,7 @@ const App: React.FC = () => {
   const currentStation = route[currentIndex];
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-slate-50 flex flex-col pb-24 lg:pb-0">
       {/* Header */}
       <header className="bg-white border-b border-slate-200 px-4 py-3 sticky top-0 z-30 shadow-sm">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -180,8 +192,10 @@ const App: React.FC = () => {
               stations={allStations}
               startCode={startCode}
               endCode={endCode}
+              linePreference={linePreference}
               onStartChange={setStartCode}
               onEndChange={setEndCode}
+              onPreferenceChange={setLinePreference}
               onConfirm={startGame}
             />
             <GameSettings config={diceConfig} onConfigChange={setDiceConfig} />
@@ -203,6 +217,7 @@ const App: React.FC = () => {
                {/* Current Station Info */}
                <div className="order-1 lg:order-2">
                   <CurrentStation 
+                    ref={currentStationRef}
                     station={currentStation} 
                     isStart={currentIndex === 0}
                     isEnd={currentIndex === route.length - 1}
@@ -215,38 +230,59 @@ const App: React.FC = () => {
                </div>
             </div>
 
-            {/* Right Column: Controls */}
+            {/* Right Column: Controls (Desktop) / Fixed Bottom (Mobile) */}
             <div className="lg:col-span-4 flex flex-col justify-end lg:justify-start order-1 lg:order-2">
-               <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 sticky top-24">
-                  <h3 className="text-center text-sm font-semibold text-slate-400 uppercase mb-6">控制台 Control</h3>
-                  
-                  <DiceButton 
-                    onRoll={handleRollDice} 
-                    isRolling={isRolling} 
-                    value={diceValue} 
-                    disabled={currentIndex === route.length - 1}
-                  />
-
-                  <div className="mt-8 space-y-4">
-                     <div className="flex justify-between items-center text-sm border-b border-slate-100 pb-3">
-                        <span className="text-slate-500">起點 Start</span>
-                        <span className="font-medium text-slate-800">{route[0].stationName}</span>
-                     </div>
-                     <div className="flex justify-between items-center text-sm border-b border-slate-100 pb-3">
-                        <span className="text-slate-500">終點 End</span>
-                        <span className="font-medium text-slate-800">{route[route.length - 1].stationName}</span>
-                     </div>
-                     <div className="flex justify-between items-center text-sm">
-                        <span className="text-slate-500">剩餘站數 Remaining</span>
-                        <span className="font-bold text-blue-600">{(route.length - 1) - currentIndex}</span>
-                     </div>
+               <div className={`
+                 bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] lg:shadow-sm border-t lg:border border-slate-100 
+                 fixed lg:sticky bottom-0 lg:top-24 left-0 right-0 lg:left-auto lg:right-auto z-40 lg:z-10
+                 rounded-t-3xl lg:rounded-2xl
+                 transition-all duration-300 ease-in-out
+               `}>
+                  {/* Control Header / Toggle */}
+                  <div 
+                    onClick={() => setIsControlsExpanded(!isControlsExpanded)}
+                    className="flex items-center justify-center p-3 cursor-pointer hover:bg-slate-50 lg:rounded-t-2xl active:bg-slate-100"
+                  >
+                     <div className="w-12 h-1 bg-slate-200 rounded-full lg:hidden mb-2 absolute top-2"></div>
+                     <h3 className="text-center text-sm font-semibold text-slate-400 uppercase select-none flex items-center gap-2 mt-2 lg:mt-0">
+                        控制台 Control
+                        {isControlsExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
+                     </h3>
                   </div>
+                  
+                  {/* Collapsible Content */}
+                  <div className={`
+                    overflow-hidden transition-all duration-300 px-6 pb-6 lg:px-6 lg:pb-6
+                    ${isControlsExpanded ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0 lg:max-h-0'}
+                  `}>
+                    <DiceButton 
+                      onRoll={handleRollDice} 
+                      isRolling={isRolling} 
+                      value={diceValue} 
+                      disabled={currentIndex === route.length - 1}
+                    />
 
-                  {currentIndex === route.length - 1 && (
-                    <div className="mt-6 p-4 bg-green-50 text-green-700 rounded-xl text-center font-bold animate-bounce">
-                        🎉 抵達終點！
+                    <div className="mt-6 space-y-4">
+                      <div className="flex justify-between items-center text-sm border-b border-slate-100 pb-3">
+                          <span className="text-slate-500">起點 Start</span>
+                          <span className="font-medium text-slate-800">{route[0].stationName}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-sm border-b border-slate-100 pb-3">
+                          <span className="text-slate-500">終點 End</span>
+                          <span className="font-medium text-slate-800">{route[route.length - 1].stationName}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-sm">
+                          <span className="text-slate-500">剩餘站數 Remaining</span>
+                          <span className="font-bold text-blue-600">{(route.length - 1) - currentIndex}</span>
+                      </div>
                     </div>
-                  )}
+
+                    {currentIndex === route.length - 1 && (
+                      <div className="mt-6 p-4 bg-green-50 text-green-700 rounded-xl text-center font-bold animate-bounce">
+                          🎉 抵達終點！
+                      </div>
+                    )}
+                  </div>
                </div>
             </div>
 
