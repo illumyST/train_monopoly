@@ -1,0 +1,5 @@
+{
+  "name": "Train Monopoly (火車大富翁)",
+  "description": "A mobile-first railway board game where players travel between Taiwanese train stations by rolling a die.",
+  "requestFramePermissions": []
+}
