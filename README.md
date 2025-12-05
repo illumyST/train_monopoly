@@ -29,6 +29,41 @@ yarn preview  # 預覽建置結果
 GEMINI_API_KEY=你的key
 ```
 
+## 環境變數設定（AI 相關）
+
+若需啟用站點旅遊資訊的 AI 整合，請在專案根目錄建立 `.env.local`（或在部署環境配置下列變數）。使用 Vite 的 `import.meta.env` 讀取。
+
+- `VITE_AI_ENDPOINT`：選用。若設置，前端會優先呼叫此代理端點（`POST /api/ai/station-travel`）。
+- `VITE_AI_MODEL`：選用。指定 Gemini 模型名稱（預設：`gemini-1.5-flash`）。
+- `VITE_AI_API_KEY`：選用。直接呼叫 Google GenAI 用的 API key（若未提供則嘗試 `VITE_GEMINI_API_KEY`）。
+- `VITE_GEMINI_API_KEY`：選用。與 `VITE_AI_API_KEY` 等同用途，作為備用鍵值。
+
+`.env.local` 範例：
+
+```env
+# 代理服務（若有自行部署）
+VITE_AI_ENDPOINT=https://your-proxy.example.com
+
+# 模型可換，如 gemini-1.5-pro / flash / flash-8b
+VITE_AI_MODEL=gemini-1.5-flash
+
+# 直接呼叫 Google GenAI 的金鑰（二擇一填即可）
+VITE_AI_API_KEY=你的_google_genai_key
+VITE_GEMINI_API_KEY=你的_google_genai_key
+```
+
+啟動說明：
+
+```sh
+pnpm install
+pnpm dev
+```
+
+注意事項：
+- 前端為公開資產，請勿在倉庫硬編碼敏感金鑰。
+- 若無代理端點且未提供 API key，AI 相關功能會停用（UI 保持可用）。
+- 代理回應格式需符合 `services/aiClient.ts` 期待的 JSON 結構。
+
 ## 車站資料來源
 
 將完整台鐵站點 JSON 放到：`public/data/stations.json`。

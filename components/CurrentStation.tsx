@@ -1,6 +1,7 @@
 import React, { forwardRef } from 'react';
 import { Station } from '../types';
 import { MapPin } from 'lucide-react';
+import StationTravelCard from './StationTravelCard';
 
 interface CurrentStationProps {
   station: Station;
@@ -28,6 +29,11 @@ export const CurrentStation = forwardRef<HTMLDivElement, CurrentStationProps>(({
       <p className="text-lg text-slate-400 font-medium">
         {station.stationEName}
       </p>
+
+      {/* Station Travel Card */}
+      <div className="w-full mt-4">
+        <StationTravelCard station={station} routeId={station.lineCode || 'route'} />
+      </div>
     </div>
   );
 });
