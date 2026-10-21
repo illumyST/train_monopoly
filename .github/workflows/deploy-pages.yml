@@ -36,9 +36,13 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+      # gh-pages 會另外 clone 一份 repo，拿不到 checkout 設定的認證，需在 remote URL 帶 token
       - name: Deploy to gh-pages branch
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: pnpm run deploy
+        run: >
+          pnpm exec gh-pages -d dist
+          -r "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
+          -u "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
 
     # 成功後可在倉庫設定中選擇 gh-pages branch 作為 Pages 來源
