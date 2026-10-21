@@ -43,6 +43,6 @@ jobs:
         run: >
           pnpm exec gh-pages -d dist
           -r "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
-          -u "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+          -u "github-actions-bot <support+actions@github.com>"
 
     # 成功後可在倉庫設定中選擇 gh-pages branch 作為 Pages 來源
