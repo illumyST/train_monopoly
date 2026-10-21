@@ -5,8 +5,8 @@ import react from '@vitejs/plugin-react';
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     return {
-      // GitHub Pages 專案倉庫路徑 (https://illumyST.github.io/train_monopoly/)
-      base: '/train_monopoly/',
+      // 自訂網域 stoneisme.com，網站部署於根目錄
+      base: '/',
       server: {
         port: 3000,
         host: '0.0.0.0',
