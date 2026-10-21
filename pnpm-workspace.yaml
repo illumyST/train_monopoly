@@ -1,0 +1,6 @@
+allowBuilds:
+  esbuild: true
+# 讓此專案自成 workspace 根目錄，並放行發佈未滿 minimumReleaseAge 的指定版本
+minimumReleaseAgeExclude:
+  - vite@6.4.5
+  - electron-to-chromium@1.5.462
